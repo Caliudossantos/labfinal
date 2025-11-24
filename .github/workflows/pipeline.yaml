@@ -20,9 +20,8 @@ jobs:
       - name: Down docker-compose
         run: docker-compose down
 
-      - name: Deploy
-        uses: render-inc/actions/deploy@v1
-        with:
-          service-id: srv-d4idemer433s73dinli0
-          api-key: ${{ secrets.Eduardo }}
-          clear-cache: false
+      - name: Deploy to Render with Webhook
+        run: |
+          curl -X POST "$URL_WEBHOOK"
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.URL_WEBHOOK }}

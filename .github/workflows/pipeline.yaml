@@ -21,7 +21,7 @@ jobs:
         run: docker-compose down
 
       - name: Deploy
-        uses: render-actions/deploy@v1
+        uses: render-inc/actions/deploy@v1
         with:
           service-id: srv-d4idemer433s73dinli0
           api-key: ${{ secrets.Eduardo }}

@@ -1,27 +1,50 @@
-name: CI/CD Pipeline - Desafio Final
+name: CI/CD - Pipeline
+
 on:
   push:
-    branches:
-      - main
-  
+    branches: [ "main" ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build API
-        run: docker-compose up --build -d
+      - name: Build with docker-compose
+        run: docker compose up -d --build
 
-      - name: Run tests
-        run: docker-compose run api python -m unittest discover
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: .
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       
-      - name: Down docker-compose
-        run: docker-compose down
+      - name: Start containers for testing
+        run: docker compose up -d --build
 
-      - name: Deploy to Render with Webhook
+      - name: Run Tests
+        run: docker compose exec api pytest -q
+
+      - name: Down containers
+        run: docker compose down
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Trigger Render Deployment
         run: |
-          curl -X POST "$URL_WEBHOOK"
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.URL_WEBHOOK }}
+          curl -X POST "$CONSTANTINO"
+
+    env:
+      RENDER_DEPLOY_HOOK: ${{ secrets.CONSTANTINO }}
